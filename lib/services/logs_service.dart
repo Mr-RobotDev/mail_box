@@ -1,20 +1,18 @@
 import 'dart:async';
 
-class LogsService {
-  final List<String> _logs = [];
+import 'package:mail_box/services/hive_service.dart';
+import 'package:mail_box/services/setup/setup.dart';
 
+class LogsService {
   final StreamController<String> _controller =
       StreamController<String>.broadcast();
 
   Stream<String> get stream => _controller.stream;
 
-  void add(String value) {
-    _logs.add(value);
-    _controller.add(value);
-  }
+  void add(String value) async {
+    await getIt<HiveService>().save(value, value);
 
-  List<String> getLogs() {
-    return _logs;
+    _controller.add(value);
   }
 
   void dispose() => _controller.close();

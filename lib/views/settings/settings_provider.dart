@@ -1,7 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:mail_box/common/ui_helpers.dart';
 import 'package:mail_box/services/file_picker_service.dart';
-import 'package:mail_box/services/setup.dart';
+import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
 class SettingsProvider extends ChangeNotifier {

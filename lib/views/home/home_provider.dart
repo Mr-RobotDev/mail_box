@@ -7,7 +7,7 @@ import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
 import 'package:mail_box/services/logs_service.dart';
-import 'package:mail_box/services/setup.dart';
+import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
 class HomeProvider extends ChangeNotifier {

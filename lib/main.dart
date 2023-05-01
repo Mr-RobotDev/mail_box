@@ -2,7 +2,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mail_box/app/app_router.dart';
 import 'package:mail_box/app/app_theme.dart';
-import 'package:mail_box/services/setup.dart';
+import 'package:mail_box/services/hive_service.dart';
+import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 import 'package:mail_box/views/home/home_provider.dart';
 import 'package:mail_box/views/logs/logs_provider.dart';
@@ -54,6 +55,9 @@ void main() async {
 
   // init shared prefs
   SharedPrefs.init();
+
+  // init hive
+  await getIt<HiveService>().init();
 
   runApp(const MyApp());
 }
