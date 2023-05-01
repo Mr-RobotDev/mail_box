@@ -16,6 +16,7 @@ final router = GoRouter(
       builder: (context, state, child) {
         return MainView(
           shellContext: _shellNavigatorKey.currentContext,
+          state: state,
           child: child,
         );
       },

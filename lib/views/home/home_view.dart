@@ -26,21 +26,23 @@ class _HomeViewState extends State<HomeView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(
-              width: 100,
-              child: Button(
-                onPressed: provider.previousFile,
-                child: const Text('Previous'),
+            if (provider.files.isNotEmpty) ...[
+              SizedBox(
+                width: 100,
+                child: Button(
+                  onPressed: provider.previousFile,
+                  child: const Text('Previous'),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 100,
-              child: Button(
-                onPressed: provider.nextFile,
-                child: const Text('Next'),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 100,
+                child: Button(
+                  onPressed: provider.nextFile,
+                  child: const Text('Next'),
+                ),
               ),
-            ),
+            ],
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.3,
             ),
@@ -62,15 +64,30 @@ class _HomeViewState extends State<HomeView> {
           ),
           Button(
             onPressed: () => provider.pickFiles(context),
+            style: ButtonStyle(
+              backgroundColor: ButtonState.resolveWith(
+                (states) => provider.files.isEmpty
+                    ? Colors.red.withOpacity(0.1)
+                    : Colors.successPrimaryColor,
+              ),
+            ),
             child:
                 Text(provider.files.isEmpty ? 'Select Pdfs' : 'Pdfs Selected'),
           ),
           const SizedBox(width: 12),
           Button(
             onPressed: () => provider.pickUsers(context),
+            style: ButtonStyle(
+              backgroundColor: ButtonState.resolveWith(
+                (states) => provider.users.isEmpty
+                    ? Colors.red.withOpacity(0.1)
+                    : Colors.successPrimaryColor,
+              ),
+            ),
             child: Text(
                 provider.users.isEmpty ? 'Select Users' : 'Users Selected'),
           ),
+          const SizedBox(width: 24),
         ],
       ),
       children: [

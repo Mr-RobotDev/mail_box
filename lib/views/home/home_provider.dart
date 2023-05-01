@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:io';
 
@@ -154,7 +156,6 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
 
       if (recipientEmail.isNotEmpty) {
-        // ignore: use_build_context_synchronously
         emailFile(
           context,
           file,
@@ -167,7 +168,6 @@ class HomeProvider extends ChangeNotifier {
         );
       }
     } else {
-      // ignore: use_build_context_synchronously
       infoBox(context, 'Error', 'File not moved', InfoBarSeverity.error);
     }
   }

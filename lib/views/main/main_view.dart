@@ -8,11 +8,13 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainView extends StatefulWidget {
-  const MainView({super.key, required this.child, this.shellContext});
+  const MainView({super.key, required this.child, this.shellContext, required this.state});
 
   final Widget child;
   final BuildContext? shellContext;
+  final GoRouterState state;
 
+  
   @override
   State<MainView> createState() => _MainViewState();
 }
