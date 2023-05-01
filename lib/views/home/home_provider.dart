@@ -22,6 +22,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _sendingCount = 0;
+  int get sendingCount => _sendingCount;
+
   Timer? focusRequestTimer;
 
   void startFocusRequestTimer() {
@@ -44,7 +47,8 @@ class HomeProvider extends ChangeNotifier {
       if (resultFiles != null) {
         files = resultFiles;
         notifyListeners();
-        infoBox(context, 'Success', 'Files loaded successfully', InfoBarSeverity.success);
+        infoBox(context, 'Success', 'Files loaded successfully',
+            InfoBarSeverity.success);
       } else {
         infoBox(context, 'Error', 'No files selected', InfoBarSeverity.error);
       }
@@ -62,9 +66,11 @@ class HomeProvider extends ChangeNotifier {
           if (loadedUsers != null) {
             users = loadedUsers;
             notifyListeners();
-            infoBox(context, 'Success', 'Users loaded successfully', InfoBarSeverity.success);
+            infoBox(context, 'Success', 'Users loaded successfully',
+                InfoBarSeverity.success);
           } else {
-            infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
+            infoBox(
+                context, 'Error', 'No file selected', InfoBarSeverity.error);
           }
         }).catchError((_) {
           infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
@@ -96,13 +102,17 @@ class HomeProvider extends ChangeNotifier {
         subject.isEmpty ||
         body.isEmpty ||
         folderPath.isEmpty) {
-      infoBox(context, 'Error',
-          'Please fill in all required settings in the settings view', InfoBarSeverity.error);
+      infoBox(
+          context,
+          'Error',
+          'Please fill in all required settings in the settings view',
+          InfoBarSeverity.error);
       return;
     }
 
     if (users.isEmpty) {
-      infoBox(context, 'Error', 'Please select a users file first', InfoBarSeverity.error);
+      infoBox(context, 'Error', 'Please select a users file first',
+          InfoBarSeverity.error);
       return;
     }
 
@@ -160,6 +170,8 @@ class HomeProvider extends ChangeNotifier {
     String subject,
     String text,
   ) {
+    _sendingCount++;
+    notifyListeners();
     getIt<EmailService>()
         .sendEmailWithAttachment(
       files[currentFile],
@@ -185,6 +197,9 @@ class HomeProvider extends ChangeNotifier {
       );
 
       await HiveService.save(log.hashCode.toString(), log);
+    }).whenComplete(() {
+      _sendingCount--;
+      notifyListeners();
     });
   }
 }

@@ -21,6 +21,20 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
     return ScaffoldPage.scrollable(
+      bottomBar: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              provider.sendingCount == 0
+                  ? 'Ready'
+                  : 'Sending ${provider.sendingCount}...',
+              style: FluentTheme.of(context).typography.subtitle,
+            ),
+          ],
+        ),
+      ),
       header: const PageHeader(
         title: Text('Home'),
       ),
