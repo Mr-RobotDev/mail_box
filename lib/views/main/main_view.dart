@@ -17,8 +17,7 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView>
-    with WindowListener, AutomaticKeepAliveClientMixin {
+class _MainViewState extends State<MainView> with WindowListener {
   final List<NavigationPaneItem> originalItems = [
     PaneItem(
       key: const Key('/'),
@@ -85,7 +84,6 @@ class _MainViewState extends State<MainView>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final appTheme = context.watch<AppTheme>();
     final theme = FluentTheme.of(context);
     if (widget.shellContext != null) {
@@ -224,5 +222,35 @@ class _MainViewState extends State<MainView>
   }
 
   @override
-  bool get wantKeepAlive => true;
+  void onWindowClose() async {
+    bool isPreventClose = await windowManager.isPreventClose();
+    if (isPreventClose) {
+      // ignore: use_build_context_synchronously
+      await showDialog(
+        context: context,
+        builder: (_) {
+          return ContentDialog(
+            title: const Text('Confirm close'),
+            content: const Text(
+                'Please verify on home view if there are any unsent emails before closing the window.'),
+            actions: [
+              FilledButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  windowManager.destroy();
+                },
+              ),
+              Button(
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }
