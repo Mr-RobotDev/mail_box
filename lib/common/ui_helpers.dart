@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-void infoBox(BuildContext context, String title, String content) {
+void infoBox(BuildContext context, String title, String content, InfoBarSeverity severity) {
   displayInfoBar(
     context,
     builder: (context, close) {
@@ -11,7 +11,7 @@ void infoBox(BuildContext context, String title, String content) {
           icon: const Icon(FluentIcons.clear),
           onPressed: close,
         ),
-        severity: InfoBarSeverity.warning,
+        severity: severity,
       );
     },
   );

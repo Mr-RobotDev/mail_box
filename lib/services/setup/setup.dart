@@ -5,6 +5,6 @@ import 'package:mail_box/services/file_picker_service.dart';
 final GetIt getIt = GetIt.instance;
 
 void registerServices() {
-  getIt.registerLazySingleton(() => EmailService());
   getIt.registerLazySingleton(() => FilePickerService());
+  getIt.registerLazySingleton(() => EmailService());
 }

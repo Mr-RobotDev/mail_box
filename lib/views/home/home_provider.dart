@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:mail_box/common/ui_helpers.dart';
+import 'package:mail_box/models/log.dart';
 import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
-import 'package:mail_box/services/setup.dart';
+import 'package:mail_box/services/hive_service.dart';
+import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -42,9 +44,9 @@ class HomeProvider extends ChangeNotifier {
       if (resultFiles != null) {
         files = resultFiles;
         notifyListeners();
-        infoBox(context, 'Success', 'Files loaded successfully');
+        infoBox(context, 'Success', 'Files loaded successfully', InfoBarSeverity.success);
       } else {
-        infoBox(context, 'Error', 'No files selected');
+        infoBox(context, 'Error', 'No files selected', InfoBarSeverity.error);
       }
     });
   }
@@ -60,18 +62,18 @@ class HomeProvider extends ChangeNotifier {
           if (loadedUsers != null) {
             users = loadedUsers;
             notifyListeners();
-            infoBox(context, 'Success', 'Users loaded successfully');
+            infoBox(context, 'Success', 'Users loaded successfully', InfoBarSeverity.success);
           } else {
-            infoBox(context, 'Error', 'No file selected');
+            infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
           }
         }).catchError((_) {
-          infoBox(context, 'Error', 'No file selected');
+          infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
         });
       } else {
-        infoBox(context, 'Error', 'No file selected');
+        infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
       }
     }).catchError((_) {
-      infoBox(context, 'Error', 'No file selected');
+      infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
     });
   }
 
@@ -95,12 +97,12 @@ class HomeProvider extends ChangeNotifier {
         body.isEmpty ||
         folderPath.isEmpty) {
       infoBox(context, 'Error',
-          'Please fill in all required settings in the settings view');
+          'Please fill in all required settings in the settings view', InfoBarSeverity.error);
       return;
     }
 
     if (users.isEmpty) {
-      infoBox(context, 'Error', 'Please select a users file first');
+      infoBox(context, 'Error', 'Please select a users file first', InfoBarSeverity.error);
       return;
     }
 
@@ -111,14 +113,12 @@ class HomeProvider extends ChangeNotifier {
         )
         .email;
 
-    moveFile(context, folderPath, unitNumber);
-
     if (recipientEmail.isNotEmpty) {
-      emailFile(context, recipientEmail, email, password, subject, body);
+      emailFile(
+          context, unitNumber, recipientEmail, email, password, subject, body);
     }
 
-    files.removeAt(currentFile);
-    notifyListeners();
+    moveFile(context, folderPath, unitNumber);
   }
 
   void moveFile(BuildContext context, String folderPath, String unitNumber) {
@@ -128,15 +128,32 @@ class HomeProvider extends ChangeNotifier {
       folderPath,
       unitNumber,
     )
-        .then((value) {
+        .then((value) async {
+      Log log = Log(
+        error: '',
+        logContent: 'File $unitNumber.pdf moved to $folderPath/$unitNumber',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
+
       unitNumberController.clear();
-    }).catchError((_) {
-      infoBox(context, 'Error', 'Error moving file');
+      files.removeAt(currentFile);
+      notifyListeners();
+    }).catchError((_) async {
+      Log log = Log(
+        error: 'Error',
+        logContent: 'File $unitNumber.pdf not moved to $folderPath/$unitNumber',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
     });
   }
 
   void emailFile(
     BuildContext context,
+    String unitNumber,
     String recipientEmail,
     String email,
     String password,
@@ -145,16 +162,29 @@ class HomeProvider extends ChangeNotifier {
   ) {
     getIt<EmailService>()
         .sendEmailWithAttachment(
-          files[currentFile],
-          email,
-          password,
-          subject,
-          text,
-          recipientEmail,
-        )
-        .then((value) {})
-        .catchError((_) {
-      infoBox(context, 'Error', 'Error moving file');
+      files[currentFile],
+      email,
+      password,
+      subject,
+      text,
+      recipientEmail,
+    )
+        .then((value) async {
+      Log log = Log(
+        error: '',
+        logContent: 'File $unitNumber.pdf sent to $recipientEmail',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
+    }).catchError((_) async {
+      Log log = Log(
+        error: 'Error',
+        logContent: 'Error sending $unitNumber.pdf not sent to $recipientEmail',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
     });
   }
 }

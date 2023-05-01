@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:mail_box/common/ui_helpers.dart';
 import 'package:mail_box/views/settings/settings_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -56,7 +57,11 @@ class SettingsView extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         FilledButton(
-          onPressed: () => settingsProvider.save(context),
+          onPressed: () {
+            settingsProvider.save(context);
+            infoBox(context, 'Success', 'Settings saved successfully',
+                InfoBarSeverity.success);
+          },
           child: Text(settingsProvider.saveString),
         ),
       ],
