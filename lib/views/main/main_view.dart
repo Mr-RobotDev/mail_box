@@ -86,11 +86,6 @@ class _MainViewState extends State<MainView> with WindowListener {
   Widget build(BuildContext context) {
     final appTheme = context.watch<AppTheme>();
     final theme = FluentTheme.of(context);
-    if (widget.shellContext != null) {
-      if (router.canPop() == false) {
-        setState(() {});
-      }
-    }
     return NavigationView(
       appBar: NavigationAppBar(
         automaticallyImplyLeading: false,
@@ -100,7 +95,6 @@ class _MainViewState extends State<MainView> with WindowListener {
               ? () {
                   if (router.canPop()) {
                     context.pop();
-                    setState(() {});
                   }
                 }
               : null;

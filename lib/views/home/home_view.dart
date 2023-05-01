@@ -29,7 +29,7 @@ class _HomeViewState extends State<HomeView> {
             SizedBox(
               width: 100,
               child: Button(
-                onPressed: () {},
+                onPressed: provider.previousFile,
                 child: const Text('Previous'),
               ),
             ),
@@ -37,7 +37,7 @@ class _HomeViewState extends State<HomeView> {
             SizedBox(
               width: 100,
               child: Button(
-                onPressed: () {},
+                onPressed: provider.nextFile,
                 child: const Text('Next'),
               ),
             ),
@@ -53,8 +53,25 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       ),
-      header: const PageHeader(
-        title: Text('Home'),
+      header: Row(
+        children: [
+          const Expanded(
+            child: PageHeader(
+              title: Text('Home'),
+            ),
+          ),
+          Button(
+            onPressed: () => provider.pickFiles(context),
+            child:
+                Text(provider.files.isEmpty ? 'Select Pdfs' : 'Pdfs Selected'),
+          ),
+          const SizedBox(width: 12),
+          Button(
+            onPressed: () => provider.pickUsers(context),
+            child: Text(
+                provider.users.isEmpty ? 'Select Users' : 'Users Selected'),
+          ),
+        ],
       ),
       children: [
         Row(
@@ -66,6 +83,12 @@ class _HomeViewState extends State<HomeView> {
                 placeholder: 'Unit Number',
                 focusNode: provider.unitNumberFocusNode,
                 onFieldSubmitted: (value) => provider.send(context),
+                suffix: provider.unitNumberController.text.isNotEmpty
+                    ? IconButton(
+                        onPressed: provider.clearUnitNumber,
+                        icon: const Icon(FluentIcons.clear),
+                      )
+                    : null,
                 controller: provider.unitNumberController,
               ),
             ),
@@ -76,39 +99,20 @@ class _HomeViewState extends State<HomeView> {
             ),
           ],
         ),
-        if (provider.files.isNotEmpty && provider.users.isNotEmpty)
+        if (provider.files.isNotEmpty) ...[
           const SizedBox(height: 12),
-        if (provider.files.isNotEmpty && provider.users.isNotEmpty)
           Text(
             'File ${provider.currentFile + 1}/${provider.files.length}',
             style: FluentTheme.of(context).typography.subtitle,
           ),
-        const SizedBox(height: 12),
-        provider.files.isEmpty || provider.users.isEmpty
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Button(
-                    onPressed: () => provider.pickFiles(context),
-                    child: Text(provider.files.isEmpty
-                        ? 'Select Pdfs'
-                        : 'Pdfs Selected'),
-                  ),
-                  const SizedBox(width: 12),
-                  Button(
-                    onPressed: () => provider.pickUsers(context),
-                    child: Text(provider.users.isEmpty
-                        ? 'Select Users'
-                        : 'Users Selected'),
-                  ),
-                ],
-              )
-            : SizedBox(
-                height: 550,
-                child: SfPdfViewer.file(
-                  provider.files[provider.currentFile],
-                ),
-              ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 550,
+            child: SfPdfViewer.file(
+              provider.files[provider.currentFile],
+            ),
+          ),
+        ]
       ],
     );
   }

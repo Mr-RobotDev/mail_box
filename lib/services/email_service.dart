@@ -18,7 +18,7 @@ class EmailService {
     try {
       await send(message, smtpServer);
       return true;
-    } on Exception {
+    } catch (e) {
       return false;
     }
   }

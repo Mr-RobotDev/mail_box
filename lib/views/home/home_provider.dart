@@ -12,14 +12,32 @@ import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
 class HomeProvider extends ChangeNotifier {
-  TextEditingController unitNumberController = TextEditingController();
   FocusNode unitNumberFocusNode = FocusNode();
+
+  TextEditingController unitNumberController = TextEditingController();
+  void clearUnitNumber() {
+    unitNumberController.clear();
+  }
 
   int _currentFile = 0;
   int get currentFile => _currentFile;
   set currentFile(int value) {
     _currentFile = value;
     notifyListeners();
+  }
+
+  void previousFile() {
+    if (currentFile > 0) {
+      currentFile--;
+      notifyListeners();
+    }
+  }
+
+  void nextFile() {
+    if (currentFile < files.length - 1) {
+      currentFile++;
+      notifyListeners();
+    }
   }
 
   int _sendingCount = 0;
@@ -110,8 +128,14 @@ class HomeProvider extends ChangeNotifier {
       return;
     }
 
+    if (files.isEmpty) {
+      infoBox(
+          context, 'Error', 'Please select pdf files', InfoBarSeverity.error);
+      return;
+    }
+
     if (users.isEmpty) {
-      infoBox(context, 'Error', 'Please select a users file first',
+      infoBox(context, 'Error', 'Please select a users data file',
           InfoBarSeverity.error);
       return;
     }
@@ -123,34 +147,60 @@ class HomeProvider extends ChangeNotifier {
         )
         .email;
 
-    if (recipientEmail.isNotEmpty) {
-      emailFile(
-          context, unitNumber, recipientEmail, email, password, subject, body);
-    }
+    final file = await moveFile(folderPath, unitNumber);
+    if (file != null) {
+      unitNumberController.clear();
+      files.remove(files[currentFile]);
+      notifyListeners();
 
-    moveFile(context, folderPath, unitNumber);
+      if (recipientEmail.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        emailFile(
+          context,
+          file,
+          unitNumber,
+          recipientEmail,
+          email,
+          password,
+          subject,
+          body,
+        );
+      }
+    } else {
+      // ignore: use_build_context_synchronously
+      infoBox(context, 'Error', 'File not moved', InfoBarSeverity.error);
+    }
   }
 
-  void moveFile(BuildContext context, String folderPath, String unitNumber) {
-    getIt<FilePickerService>()
-        .moveFileToFolder(
-      files[currentFile],
-      folderPath,
-      unitNumber,
-    )
-        .then((value) async {
-      Log log = Log(
-        error: '',
-        logContent: 'File $unitNumber.pdf moved to $folderPath/$unitNumber',
-        timeStamp: DateTime.now().toString(),
+  Future<File?> moveFile(String folderPath, String unitNumber) async {
+    try {
+      final tempFile = await getIt<FilePickerService>().moveFileToFolder(
+        files[currentFile],
+        folderPath,
+        unitNumber,
       );
 
-      await HiveService.save(log.hashCode.toString(), log);
+      if (tempFile != null) {
+        Log log = Log(
+          error: '',
+          logContent: 'File $unitNumber.pdf moved to $folderPath/$unitNumber',
+          timeStamp: DateTime.now().toString(),
+        );
 
-      unitNumberController.clear();
-      files.removeAt(currentFile);
-      notifyListeners();
-    }).catchError((_) async {
+        await HiveService.save(log.hashCode.toString(), log);
+        return tempFile;
+      } else {
+        Log log = Log(
+          error: 'Error',
+          logContent:
+              'File $unitNumber.pdf not moved to $folderPath/$unitNumber',
+          timeStamp: DateTime.now().toString(),
+        );
+
+        await HiveService.save(log.hashCode.toString(), log);
+        return null;
+      }
+    } catch (e) {
       Log log = Log(
         error: 'Error',
         logContent: 'File $unitNumber.pdf not moved to $folderPath/$unitNumber',
@@ -158,38 +208,50 @@ class HomeProvider extends ChangeNotifier {
       );
 
       await HiveService.save(log.hashCode.toString(), log);
-    });
+      return null;
+    }
   }
 
   void emailFile(
     BuildContext context,
+    File file,
     String unitNumber,
     String recipientEmail,
     String email,
     String password,
     String subject,
     String text,
-  ) {
+  ) async {
     _sendingCount++;
     notifyListeners();
-    getIt<EmailService>()
-        .sendEmailWithAttachment(
-      files[currentFile],
-      email,
-      password,
-      subject,
-      text,
-      recipientEmail,
-    )
-        .then((value) async {
-      Log log = Log(
-        error: '',
-        logContent: 'File $unitNumber.pdf sent to $recipientEmail',
-        timeStamp: DateTime.now().toString(),
+    try {
+      final result = await getIt<EmailService>().sendEmailWithAttachment(
+        file,
+        email,
+        password,
+        subject,
+        text,
+        recipientEmail,
       );
 
-      await HiveService.save(log.hashCode.toString(), log);
-    }).catchError((_) async {
+      if (result) {
+        Log log = Log(
+          error: '',
+          logContent: '$unitNumber.pdf sent to $recipientEmail',
+          timeStamp: DateTime.now().toString(),
+        );
+
+        await HiveService.save(log.hashCode.toString(), log);
+      } else {
+        Log log = Log(
+          error: 'Error',
+          logContent: '$unitNumber.pdf not sent to $recipientEmail',
+          timeStamp: DateTime.now().toString(),
+        );
+
+        await HiveService.save(log.hashCode.toString(), log);
+      }
+    } catch (e) {
       Log log = Log(
         error: 'Error',
         logContent: 'Error sending $unitNumber.pdf not sent to $recipientEmail',
@@ -197,9 +259,9 @@ class HomeProvider extends ChangeNotifier {
       );
 
       await HiveService.save(log.hashCode.toString(), log);
-    }).whenComplete(() {
+    } finally {
       _sendingCount--;
       notifyListeners();
-    });
+    }
   }
 }

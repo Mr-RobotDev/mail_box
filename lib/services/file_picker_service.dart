@@ -68,18 +68,18 @@ class FilePickerService {
     }
   }
 
-  Future<bool> moveFileToFolder(
+  Future<File?> moveFileToFolder(
       File file, String folderPath, String folderName) async {
     try {
       final folder = await createFolderIfNotExists(folderPath, folderName);
       if (folder != null) {
         final newFilePath = p.join(folder.path, p.basename(file.path));
-        await file.rename(newFilePath);
-        return true;
+        return await file.rename(newFilePath);
+      } else {
+        return null;
       }
-      return false;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
