@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:mail_box/common/ui_helpers.dart';
+import 'package:mail_box/models/log.dart';
 import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
+import 'package:mail_box/services/hive_service.dart';
 import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
@@ -112,7 +114,8 @@ class HomeProvider extends ChangeNotifier {
         .email;
 
     if (recipientEmail.isNotEmpty) {
-      emailFile(context, recipientEmail, email, password, subject, body);
+      emailFile(
+          context, unitNumber, recipientEmail, email, password, subject, body);
     }
 
     moveFile(context, folderPath, unitNumber);
@@ -125,19 +128,32 @@ class HomeProvider extends ChangeNotifier {
       folderPath,
       unitNumber,
     )
-        .then((value) {
-      // TODO: Add to logs
+        .then((value) async {
+      Log log = Log(
+        error: '',
+        logContent: 'File $unitNumber.pdf moved to $folderPath/$unitNumber',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
 
       unitNumberController.clear();
       files.removeAt(currentFile);
       notifyListeners();
-    }).catchError((_) {
-      // TODO: Add to logs
+    }).catchError((_) async {
+      Log log = Log(
+        error: 'Error',
+        logContent: 'File $unitNumber.pdf not moved to $folderPath/$unitNumber',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
     });
   }
 
   void emailFile(
     BuildContext context,
+    String unitNumber,
     String recipientEmail,
     String email,
     String password,
@@ -153,10 +169,22 @@ class HomeProvider extends ChangeNotifier {
       text,
       recipientEmail,
     )
-        .then((value) {
-      // TODO: Add to logs
-    }).catchError((_) {
-      // TODO: Add to logs
+        .then((value) async {
+      Log log = Log(
+        error: '',
+        logContent: 'File $unitNumber.pdf sent to $recipientEmail',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
+    }).catchError((_) async {
+      Log log = Log(
+        error: 'Error',
+        logContent: 'Error sending $unitNumber.pdf not sent to $recipientEmail',
+        timeStamp: DateTime.now().toString(),
+      );
+
+      await HiveService.save(log.hashCode.toString(), log);
     });
   }
 }
