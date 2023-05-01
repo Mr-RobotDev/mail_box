@@ -26,9 +26,27 @@ class _HomeViewState extends State<HomeView> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            SizedBox(
+              width: 100,
+              child: Button(
+                onPressed: () {},
+                child: const Text('Previous'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 100,
+              child: Button(
+                onPressed: () {},
+                child: const Text('Next'),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.3,
+            ),
             Text(
               provider.sendingCount == 0
-                  ? 'Ready'
+                  ? ''
                   : 'Sending ${provider.sendingCount}...',
               style: FluentTheme.of(context).typography.subtitle,
             ),

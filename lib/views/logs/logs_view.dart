@@ -57,15 +57,18 @@ class _LogsViewState extends State<LogsView> {
               (e) => ListTile.selectable(
                 tileColor: ButtonState.resolveWith(
                   (states) => e.error.isNotEmpty
-                      ? Colors.errorPrimaryColor
-                      : Colors.successPrimaryColor,
+                      ? Colors.errorPrimaryColor.withOpacity(0.3)
+                      : Colors.successPrimaryColor.withOpacity(0.3),
                 ),
                 title: Text(e.logContent),
                 subtitle: Text(
                   DateFormat.yMMMMd().format(DateTime.parse(e.timeStamp)),
                 ),
                 trailing: IconButton(
-                  icon: const Icon(FluentIcons.delete),
+                  icon: const Icon(
+                    FluentIcons.delete,
+                    color: Colors.white,
+                  ),
                   onPressed: () => logsProvider.delete(e),
                   style: ButtonStyle(
                     backgroundColor: ButtonState.resolveWith(
