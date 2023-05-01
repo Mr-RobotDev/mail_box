@@ -6,6 +6,7 @@ import 'package:mail_box/common/ui_helpers.dart';
 import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
+import 'package:mail_box/services/logs_service.dart';
 import 'package:mail_box/services/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
@@ -111,14 +112,11 @@ class HomeProvider extends ChangeNotifier {
         )
         .email;
 
-    moveFile(context, folderPath, unitNumber);
-
     if (recipientEmail.isNotEmpty) {
       emailFile(context, recipientEmail, email, password, subject, body);
     }
 
-    files.removeAt(currentFile);
-    notifyListeners();
+    moveFile(context, folderPath, unitNumber);
   }
 
   void moveFile(BuildContext context, String folderPath, String unitNumber) {
@@ -129,9 +127,18 @@ class HomeProvider extends ChangeNotifier {
       unitNumber,
     )
         .then((value) {
+      getIt<LogsService>().add(
+        'Moved file ${files[currentFile].path} to $folderPath/$unitNumber',
+      );
+
       unitNumberController.clear();
+
+      files.removeAt(currentFile);
+      notifyListeners();
     }).catchError((_) {
-      infoBox(context, 'Error', 'Error moving file');
+      getIt<LogsService>().add(
+        'Error moving file ${files[currentFile].path} to $folderPath/$unitNumber',
+      );
     });
   }
 
@@ -145,16 +152,21 @@ class HomeProvider extends ChangeNotifier {
   ) {
     getIt<EmailService>()
         .sendEmailWithAttachment(
-          files[currentFile],
-          email,
-          password,
-          subject,
-          text,
-          recipientEmail,
-        )
-        .then((value) {})
-        .catchError((_) {
-      infoBox(context, 'Error', 'Error moving file');
+      files[currentFile],
+      email,
+      password,
+      subject,
+      text,
+      recipientEmail,
+    )
+        .then((value) {
+      getIt<LogsService>().add(
+        'Sent file ${files[currentFile].path} to $recipientEmail',
+      );
+    }).catchError((_) {
+      getIt<LogsService>().add(
+        'Error sending file ${files[currentFile].path} to $recipientEmail',
+      );
     });
   }
 }

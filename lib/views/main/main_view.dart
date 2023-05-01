@@ -30,6 +30,18 @@ class _MainViewState extends State<MainView>
       },
     ),
     PaneItem(
+      key: const Key('/logs'),
+      icon: const Icon(FluentIcons.list),
+      title: const Text('Logs'),
+      body: const SizedBox.shrink(),
+      onTap: () {
+        if (router.location != '/logs') {
+          router.pushNamed('logs');
+        }
+      },
+    ),
+    PaneItemSeparator(),
+    PaneItem(
       key: const Key('/settings'),
       icon: const Icon(FluentIcons.settings),
       title: const Text('Settings'),

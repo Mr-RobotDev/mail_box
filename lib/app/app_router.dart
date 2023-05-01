@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mail_box/views/home/home_view.dart';
+import 'package:mail_box/views/logs/logs_view.dart';
 import 'package:mail_box/views/main/main_view.dart';
 import 'package:mail_box/views/settings/settings_view.dart';
 
@@ -28,6 +29,11 @@ final router = GoRouter(
           path: '/settings',
           name: 'settings',
           builder: (context, state) => const SettingsView(),
+        ),
+        GoRoute(
+          path: '/logs',
+          name: 'logs',
+          builder: (context, state) => const LogsView(),
         ),
       ],
     ),

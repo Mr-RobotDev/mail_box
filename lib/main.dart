@@ -5,6 +5,7 @@ import 'package:mail_box/app/app_theme.dart';
 import 'package:mail_box/services/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 import 'package:mail_box/views/home/home_provider.dart';
+import 'package:mail_box/views/logs/logs_provider.dart';
 import 'package:mail_box/views/settings/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:system_theme/system_theme.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AppTheme()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => LogsProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: Builder(builder: (context) {
