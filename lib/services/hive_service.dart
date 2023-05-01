@@ -1,28 +1,29 @@
 import 'package:hive/hive.dart';
 
-final box = Hive.box('mail_box');
 
 class HiveService {
-  Future<void> init() async {
-    await Hive.openBox(
-      'mail_box',
-      path: './mail_box',
+  static Box box = Hive.box('app_logs');
+  
+  static Future<void> init() async {
+    box = await Hive.openBox(
+      'app_logs',
+      path: './',
     );
   }
 
-  Future<void> save(String key, dynamic value) async {
+  static Future<void> save(String key, dynamic value) async {
     await box.put(key, value);
   }
 
-  dynamic read(String key) {
+  static dynamic read(String key) {
     return box.get(key);
   }
 
-  Future<void> delete(String key) async {
+  static Future<void> delete(String key) async {
     await box.delete(key);
   }
 
-  Future<void> clear() async {
+  static Future<void> clear() async {
     await box.clear();
   }
 }

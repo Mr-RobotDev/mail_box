@@ -6,7 +6,6 @@ import 'package:mail_box/common/ui_helpers.dart';
 import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
-import 'package:mail_box/services/logs_service.dart';
 import 'package:mail_box/services/setup/setup.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
@@ -127,18 +126,13 @@ class HomeProvider extends ChangeNotifier {
       unitNumber,
     )
         .then((value) {
-      getIt<LogsService>().add(
-        'Moved file ${files[currentFile].path} to $folderPath/$unitNumber',
-      );
+      // TODO: Add to logs
 
       unitNumberController.clear();
-
       files.removeAt(currentFile);
       notifyListeners();
     }).catchError((_) {
-      getIt<LogsService>().add(
-        'Error moving file ${files[currentFile].path} to $folderPath/$unitNumber',
-      );
+      // TODO: Add to logs
     });
   }
 
@@ -160,13 +154,9 @@ class HomeProvider extends ChangeNotifier {
       recipientEmail,
     )
         .then((value) {
-      getIt<LogsService>().add(
-        'Sent file ${files[currentFile].path} to $recipientEmail',
-      );
+      // TODO: Add to logs
     }).catchError((_) {
-      getIt<LogsService>().add(
-        'Error sending file ${files[currentFile].path} to $recipientEmail',
-      );
+      // TODO: Add to logs
     });
   }
 }

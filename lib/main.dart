@@ -57,7 +57,7 @@ void main() async {
   SharedPrefs.init();
 
   // init hive
-  await getIt<HiveService>().init();
+  await HiveService.init();
 
   runApp(const MyApp());
 }
