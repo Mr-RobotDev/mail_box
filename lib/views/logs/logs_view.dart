@@ -32,29 +32,51 @@ class _LogsViewState extends State<LogsView> {
             ),
           ),
           FilledButton(
-            child: const Text('Clear logs'),
             onPressed: () => logsProvider.clearLogs(context),
+            style: ButtonStyle(
+              backgroundColor: ButtonState.resolveWith(
+                (states) => Colors.errorPrimaryColor,
+              ),
+              foregroundColor: ButtonState.resolveWith(
+                (states) => Colors.white,
+              ),
+            ),
+            child: const Text('Clear logs'),
           ),
           const SizedBox(width: 30),
         ],
       ),
-      children: logsProvider.logs
-          .map(
-            (e) => ListTile.selectable(
-              tileColor: ButtonState.resolveWith(
-                (states) => e.error.isNotEmpty ? Colors.red : Colors.green,
+      children: [
+        TextFormBox(
+          placeholder: 'Search',
+          onChanged: (value) => logsProvider.search(value),
+        ),
+        const SizedBox(height: 10),
+        ...logsProvider.searchedLogs
+            .map(
+              (e) => ListTile.selectable(
+                tileColor: ButtonState.resolveWith(
+                  (states) => e.error.isNotEmpty
+                      ? Colors.errorPrimaryColor
+                      : Colors.successPrimaryColor,
+                ),
+                title: Text(e.logContent),
+                subtitle: Text(
+                  DateFormat.yMMMMd().format(DateTime.parse(e.timeStamp)),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(FluentIcons.delete),
+                  onPressed: () => logsProvider.delete(e),
+                  style: ButtonStyle(
+                    backgroundColor: ButtonState.resolveWith(
+                      (states) => Colors.errorPrimaryColor,
+                    ),
+                  ),
+                ),
               ),
-              title: Text(e.logContent),
-              subtitle: Text(
-                DateFormat.yMMMMd().format(DateTime.parse(e.timeStamp)),
-              ),
-              trailing: IconButton(
-                icon: const Icon(FluentIcons.delete),
-                onPressed: () => logsProvider.delete(e),
-              ),
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ],
     );
   }
 }

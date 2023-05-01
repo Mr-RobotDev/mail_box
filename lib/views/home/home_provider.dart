@@ -44,9 +44,9 @@ class HomeProvider extends ChangeNotifier {
       if (resultFiles != null) {
         files = resultFiles;
         notifyListeners();
-        infoBox(context, 'Success', 'Files loaded successfully');
+        infoBox(context, 'Success', 'Files loaded successfully', InfoBarSeverity.success);
       } else {
-        infoBox(context, 'Error', 'No files selected');
+        infoBox(context, 'Error', 'No files selected', InfoBarSeverity.error);
       }
     });
   }
@@ -62,18 +62,18 @@ class HomeProvider extends ChangeNotifier {
           if (loadedUsers != null) {
             users = loadedUsers;
             notifyListeners();
-            infoBox(context, 'Success', 'Users loaded successfully');
+            infoBox(context, 'Success', 'Users loaded successfully', InfoBarSeverity.success);
           } else {
-            infoBox(context, 'Error', 'No file selected');
+            infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
           }
         }).catchError((_) {
-          infoBox(context, 'Error', 'No file selected');
+          infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
         });
       } else {
-        infoBox(context, 'Error', 'No file selected');
+        infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
       }
     }).catchError((_) {
-      infoBox(context, 'Error', 'No file selected');
+      infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
     });
   }
 
@@ -97,12 +97,12 @@ class HomeProvider extends ChangeNotifier {
         body.isEmpty ||
         folderPath.isEmpty) {
       infoBox(context, 'Error',
-          'Please fill in all required settings in the settings view');
+          'Please fill in all required settings in the settings view', InfoBarSeverity.error);
       return;
     }
 
     if (users.isEmpty) {
-      infoBox(context, 'Error', 'Please select a users file first');
+      infoBox(context, 'Error', 'Please select a users file first', InfoBarSeverity.error);
       return;
     }
 

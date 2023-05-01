@@ -55,7 +55,7 @@ class SettingsProvider extends ChangeNotifier {
         folderPathController.text = value;
         notifyListeners();
       } else {
-        infoBox(context, 'Error', 'Please select a folder path');
+        infoBox(context, 'Error', 'Please select a folder path', InfoBarSeverity.success);
       }
     });
   }
