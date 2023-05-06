@@ -10,130 +10,143 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HomeProvider>();
-    return ScaffoldPage.scrollable(
-      bottomBar: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (provider.files.isNotEmpty) ...[
-              SizedBox(
-                width: 100,
-                child: Button(
-                  onPressed: provider.previousFile,
-                  child: const Text('Previous'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 100,
-                child: Button(
-                  onPressed: provider.nextFile,
-                  child: const Text('Next'),
-                ),
-              ),
-            ],
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.3,
-            ),
-            Text(
-              provider.sendingCount == 0
-                  ? ''
-                  : '${provider.sendingCount} emails in queue',
-            ),
-          ],
-        ),
-      ),
-      header: Row(
-        children: [
-          const Expanded(
-            child: PageHeader(
-              title: Text('Home'),
-            ),
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(
+          LogicalKeyboardKey.enter,
+        ): EnterIntent(),
+        SingleActivator(
+          LogicalKeyboardKey.arrowLeft,
+        ): PreviousIntent(),
+        SingleActivator(
+          LogicalKeyboardKey.arrowRight,
+        ): NextIntent(),
+      },
+      child: Actions(
+        actions: {
+          EnterIntent: CallbackAction<EnterIntent>(
+            onInvoke: (intent) => provider.send(context),
           ),
-          Button(
-            onPressed: () => provider.pickFiles(context),
-            style: ButtonStyle(
-              backgroundColor: ButtonState.resolveWith(
-                (states) => provider.files.isEmpty
-                    ? Colors.red.withOpacity(0.1)
-                    : Colors.successPrimaryColor,
-              ),
-            ),
-            child:
-                Text(provider.files.isEmpty ? 'Select Pdfs' : 'Pdfs Selected'),
+          PreviousIntent: CallbackAction<PreviousIntent>(
+            onInvoke: (intent) => provider.previousFile(),
           ),
-          const SizedBox(width: 12),
-          Button(
-            onPressed: () => provider.pickUsers(context),
-            style: ButtonStyle(
-              backgroundColor: ButtonState.resolveWith(
-                (states) => provider.users.isEmpty
-                    ? Colors.red.withOpacity(0.1)
-                    : Colors.successPrimaryColor,
-              ),
-            ),
-            child: Text(
-                provider.users.isEmpty ? 'Select Users' : 'Users Selected'),
+          NextIntent: CallbackAction<NextIntent>(
+            onInvoke: (intent) => provider.nextFile(),
           ),
-          const SizedBox(width: 24),
-        ],
-      ),
-      children: [
-        Actions(
-          actions: {
-            EnterIntent: CallbackAction<EnterIntent>(
-              onInvoke: (intent) => provider.send(context),
-            ),
-          },
-          child: Shortcuts(
-            shortcuts: {
-              const SingleActivator(
-                LogicalKeyboardKey.enter,
-              ): EnterIntent(),
-            },
+        },
+        child: ScaffoldPage(
+          bottomBar: Padding(
+            padding: const EdgeInsets.all(12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(
-                  width: 300,
-                  child: TextFormBox(
-                    placeholder: 'Unit Number',
-                    suffix: provider.unitNumberController.text.isNotEmpty
-                        ? IconButton(
-                            onPressed: provider.clearUnitNumber,
-                            icon: const Icon(FluentIcons.clear),
-                          )
-                        : null,
-                    controller: provider.unitNumberController,
+                if (provider.files.isNotEmpty) ...[
+                  SizedBox(
+                    width: 100,
+                    child: Button(
+                      onPressed: () => provider.previousFile(),
+                      child: const Text('Previous'),
+                    ),
                   ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 100,
+                    child: Button(
+                      onPressed: () => provider.nextFile(),
+                      child: const Text('Next'),
+                    ),
+                  ),
+                ],
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.3,
                 ),
-                const SizedBox(width: 12),
-                FilledButton(
-                  onPressed: () => provider.send(context),
-                  child: const Text('Send'),
+                Text(
+                  provider.sendingCount == 0
+                      ? ''
+                      : '${provider.sendingCount} emails in queue',
                 ),
               ],
             ),
           ),
+          header: Row(
+            children: [
+              const Expanded(
+                child: PageHeader(
+                  title: Text('Home'),
+                ),
+              ),
+              Button(
+                onPressed: () => provider.pickFiles(context),
+                child: Text(
+                    provider.files.isEmpty ? 'Select Pdfs' : 'Pdfs Selected'),
+              ),
+              const SizedBox(width: 12),
+              Button(
+                onPressed: () => provider.pickUsers(context),
+                child: Text(
+                    provider.users.isEmpty ? 'Select Users' : 'Users Selected'),
+              ),
+              const SizedBox(width: 24),
+            ],
+          ),
+          content: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    child: TextFormBox(
+                      placeholder: 'Unit Number',
+                      suffix: provider.unitNumberController.text.isNotEmpty
+                          ? IconButton(
+                              onPressed: provider.clearUnitNumber,
+                              icon: const Icon(FluentIcons.clear),
+                            )
+                          : null,
+                      controller: provider.unitNumberController,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 100,
+                    child: FilledButton(
+                      onPressed: () => provider.send(context),
+                      child: const Text('Send'),
+                    ),
+                  ),
+                ],
+              ),
+              if (provider.files.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'File ${provider.currentFile + 1}/${provider.files.length}',
+                  style: FluentTheme.of(context).typography.subtitle,
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 530,
+                  child: SfPdfViewer.file(
+                    provider.files[provider.currentFile],
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
-        if (provider.files.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            'File ${provider.currentFile + 1}/${provider.files.length}',
-            style: FluentTheme.of(context).typography.subtitle,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 550,
-            child: SfPdfViewer.file(
-              provider.files[provider.currentFile],
-            ),
-          ),
-        ]
-      ],
+      ),
     );
   }
 }
 
-class EnterIntent extends Intent {}
+class EnterIntent extends Intent {
+  const EnterIntent();
+}
+
+class NextIntent extends Intent {
+  const NextIntent();
+}
+
+class PreviousIntent extends Intent {
+  const PreviousIntent();
+}

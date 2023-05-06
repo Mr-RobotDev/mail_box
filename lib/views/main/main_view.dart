@@ -113,17 +113,9 @@ class _MainViewState extends State<MainView> with WindowListener {
           );
         }(),
         title: () {
-          if (kIsWeb) {
-            return const Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text('Mail Box'),
-            );
-          }
-          return const DragToMoveArea(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text('Mail Box'),
-            ),
+          return const Align(
+            alignment: AlignmentDirectional.center,
+            child: Text('Mail Box'),
           );
         }(),
         actions: Row(
