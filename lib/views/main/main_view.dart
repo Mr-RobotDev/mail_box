@@ -8,13 +8,13 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainView extends StatefulWidget {
-  const MainView({super.key, required this.child, this.shellContext, required this.state});
+  const MainView(
+      {super.key, required this.child, this.shellContext, required this.state});
 
   final Widget child;
   final BuildContext? shellContext;
   final GoRouterState state;
 
-  
   @override
   State<MainView> createState() => _MainViewState();
 }
@@ -55,7 +55,7 @@ class _MainViewState extends State<MainView> with WindowListener {
     ),
   ];
 
-  int _calculateSelectedIndex(BuildContext context) {
+  int _calculateSelectedIndex() {
     final location = router.location;
     int indexOriginal = originalItems
         .where((element) => element.key != null)
@@ -87,7 +87,6 @@ class _MainViewState extends State<MainView> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<AppTheme>();
-    final theme = FluentTheme.of(context);
     return NavigationView(
       appBar: NavigationAppBar(
         automaticallyImplyLeading: false,
@@ -100,30 +99,16 @@ class _MainViewState extends State<MainView> with WindowListener {
                   }
                 }
               : null;
-          return NavigationPaneTheme(
-            data: NavigationPaneTheme.of(context).merge(NavigationPaneThemeData(
-              unselectedIconColor: ButtonState.resolveWith((states) {
-                if (states.isDisabled) {
-                  return ButtonThemeData.buttonColor(context, states);
-                }
-                return ButtonThemeData.uncheckedInputColor(
-                  FluentTheme.of(context),
-                  states,
-                ).basedOnLuminance();
-              }),
-            )),
-            child: Builder(
-              builder: (context) => PaneItem(
-                icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
-                title: const Text('Back'),
-                body: const SizedBox.shrink(),
-                enabled: enabled,
-              ).build(
-                context,
-                false,
-                onPressed,
-                displayMode: PaneDisplayMode.compact,
-              ),
+          return Builder(
+            builder: (context) => PaneItem(
+              icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
+              body: const SizedBox.shrink(),
+              enabled: enabled,
+            ).build(
+              context,
+              false,
+              onPressed,
+              displayMode: PaneDisplayMode.compact,
             ),
           );
         }(),
@@ -171,47 +156,28 @@ class _MainViewState extends State<MainView> with WindowListener {
         );
       },
       pane: NavigationPane(
-        selected: _calculateSelectedIndex(context),
+        selected: _calculateSelectedIndex(),
         displayMode: appTheme.displayMode,
         items: originalItems,
         header: SizedBox(
           height: kOneLineTileHeight,
-          child: ShaderMask(
-            shaderCallback: (rect) {
-              final color = appTheme.color.defaultBrushFor(
-                theme.brightness,
-              );
-              return LinearGradient(
-                colors: [
-                  color,
-                  color,
-                ],
-              ).createShader(rect);
-            },
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/icons/mail.png',
-                  width: 94,
-                  height: 94,
-                ),
-                const SizedBox(width: 16.0),
-                Text(
-                  'Mail Box',
-                  style: FluentTheme.of(context).typography.title,
-                ),
-              ],
-            ),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/icons/mail.png',
+                width: 94,
+                height: 94,
+              ),
+              const SizedBox(width: 16.0),
+              Text(
+                'Mail Box',
+                style: FluentTheme.of(context).typography.title,
+              ),
+            ],
           ),
         ),
         indicator: () {
-          switch (appTheme.indicator) {
-            case NavigationIndicators.end:
-              return const EndNavigationIndicator();
-            case NavigationIndicators.sticky:
-            default:
-              return const StickyNavigationIndicator();
-          }
+          return const StickyNavigationIndicator();
         }(),
       ),
     );
@@ -219,34 +185,30 @@ class _MainViewState extends State<MainView> with WindowListener {
 
   @override
   void onWindowClose() async {
-    bool isPreventClose = await windowManager.isPreventClose();
-    if (isPreventClose) {
-      // ignore: use_build_context_synchronously
-      await showDialog(
-        context: context,
-        builder: (_) {
-          return ContentDialog(
-            title: const Text('Confirm close'),
-            content: const Text(
-                'Please verify on home view if there are any unsent emails before closing the window.'),
-            actions: [
-              FilledButton(
-                child: const Text('Yes'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  windowManager.destroy();
-                },
-              ),
-              Button(
-                child: const Text('No'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    await showDialog(
+      context: context,
+      builder: (_) {
+        return ContentDialog(
+          title: const Text('Confirm close'),
+          content: const Text(
+              'Please verify on home view if there are any unsent emails before closing the window.'),
+          actions: [
+            FilledButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.pop(context);
+                windowManager.destroy();
+              },
+            ),
+            Button(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

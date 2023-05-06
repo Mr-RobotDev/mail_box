@@ -10,12 +10,10 @@ import 'package:mail_box/models/user.dart';
 import 'package:mail_box/services/email_service.dart';
 import 'package:mail_box/services/file_picker_service.dart';
 import 'package:mail_box/services/hive_service.dart';
-import 'package:mail_box/services/setup/setup.dart';
+import 'package:mail_box/services/locator/locator.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 
 class HomeProvider extends ChangeNotifier {
-  FocusNode unitNumberFocusNode = FocusNode();
-
   TextEditingController unitNumberController = TextEditingController();
   void clearUnitNumber() {
     unitNumberController.clear();
@@ -45,21 +43,6 @@ class HomeProvider extends ChangeNotifier {
   int _sendingCount = 0;
   int get sendingCount => _sendingCount;
 
-  Timer? focusRequestTimer;
-
-  void startFocusRequestTimer() {
-    focusRequestTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (files.isNotEmpty) {
-          if (!unitNumberFocusNode.hasFocus) {
-            unitNumberFocusNode.requestFocus();
-          }
-        }
-      },
-    );
-  }
-
   // Load pdf files from file picker
   List<File> files = [];
   void pickFiles(BuildContext context) {
@@ -78,23 +61,12 @@ class HomeProvider extends ChangeNotifier {
   // Load users from csv file
   List<User> users = [];
   void pickUsers(BuildContext context) {
-    getIt<FilePickerService>().getFiles(false).then((files) {
-      if (files != null) {
-        getIt<FilePickerService>()
-            .readLocalCsv(files.first.path)
-            .then((loadedUsers) {
-          if (loadedUsers != null) {
-            users = loadedUsers;
-            notifyListeners();
-            infoBox(context, 'Success', 'Users loaded successfully',
-                InfoBarSeverity.success);
-          } else {
-            infoBox(
-                context, 'Error', 'No file selected', InfoBarSeverity.error);
-          }
-        }).catchError((_) {
-          infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
-        });
+    getIt<FilePickerService>().readLocalCsv().then((loadedUsers) {
+      if (loadedUsers != null) {
+        users = loadedUsers;
+        notifyListeners();
+        infoBox(context, 'Success', 'Users loaded successfully',
+            InfoBarSeverity.success);
       } else {
         infoBox(context, 'Error', 'No file selected', InfoBarSeverity.error);
       }

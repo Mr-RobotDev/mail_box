@@ -25,16 +25,21 @@ class FilePickerService {
     }
   }
 
-  Future<List<User>?> readLocalCsv(String filePath) async {
+  Future<List<User>?> readLocalCsv() async {
     try {
-      File f = File(filePath);
+      final filePath = await getFiles(false);
+
+      if (filePath == null) {
+        return null;
+      }
+
+      File f = File(filePath.first.path);
       final input = f.openRead();
       final fields = await input
           .transform(utf8.decoder)
           .transform(const CsvToListConverter())
           .toList();
 
-      fields.removeAt(0);
       List<User> tempFields = [];
       for (var field in fields) {
         User csvData = User(

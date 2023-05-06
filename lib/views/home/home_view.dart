@@ -1,21 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:mail_box/views/home/home_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
-class HomeView extends StatefulWidget {
+class HomeView extends StatelessWidget {
   const HomeView({super.key});
-
-  @override
-  State<HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {
-  @override
-  void initState() {
-    context.read<HomeProvider>().startFocusRequestTimer();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +39,7 @@ class _HomeViewState extends State<HomeView> {
             Text(
               provider.sendingCount == 0
                   ? ''
-                  : 'Sending ${provider.sendingCount}...',
-              style: FluentTheme.of(context).typography.subtitle,
+                  : '${provider.sendingCount} emails in queue',
             ),
           ],
         ),
@@ -91,30 +80,42 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 300,
-              child: TextFormBox(
-                placeholder: 'Unit Number',
-                focusNode: provider.unitNumberFocusNode,
-                onFieldSubmitted: (value) => provider.send(context),
-                suffix: provider.unitNumberController.text.isNotEmpty
-                    ? IconButton(
-                        onPressed: provider.clearUnitNumber,
-                        icon: const Icon(FluentIcons.clear),
-                      )
-                    : null,
-                controller: provider.unitNumberController,
-              ),
+        Actions(
+          actions: {
+            EnterIntent: CallbackAction<EnterIntent>(
+              onInvoke: (intent) => provider.send(context),
             ),
-            const SizedBox(width: 12),
-            FilledButton(
-              onPressed: () => provider.send(context),
-              child: const Text('Send'),
+          },
+          child: Shortcuts(
+            shortcuts: {
+              const SingleActivator(
+                LogicalKeyboardKey.enter,
+              ): EnterIntent(),
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 300,
+                  child: TextFormBox(
+                    placeholder: 'Unit Number',
+                    suffix: provider.unitNumberController.text.isNotEmpty
+                        ? IconButton(
+                            onPressed: provider.clearUnitNumber,
+                            icon: const Icon(FluentIcons.clear),
+                          )
+                        : null,
+                    controller: provider.unitNumberController,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FilledButton(
+                  onPressed: () => provider.send(context),
+                  child: const Text('Send'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         if (provider.files.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -134,3 +135,5 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
+
+class EnterIntent extends Intent {}

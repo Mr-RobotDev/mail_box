@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 
-enum NavigationIndicators { sticky, end }
-
 class AppTheme extends ChangeNotifier {
   AccentColor _color = systemAccentColor;
   AccentColor get color => _color;
@@ -27,13 +25,6 @@ class AppTheme extends ChangeNotifier {
     notifyListeners();
   }
 
-  NavigationIndicators _indicator = NavigationIndicators.sticky;
-  NavigationIndicators get indicator => _indicator;
-  set indicator(NavigationIndicators indicator) {
-    _indicator = indicator;
-    notifyListeners();
-  }
-
   WindowEffect _windowEffect = WindowEffect.disabled;
   WindowEffect get windowEffect => _windowEffect;
   set windowEffect(WindowEffect windowEffect) {
@@ -52,13 +43,6 @@ class AppTheme extends ChangeNotifier {
           : Colors.transparent,
       dark: FluentTheme.of(context).brightness.isDark,
     );
-  }
-
-  TextDirection _textDirection = TextDirection.ltr;
-  TextDirection get textDirection => _textDirection;
-  set textDirection(TextDirection direction) {
-    _textDirection = direction;
-    notifyListeners();
   }
 
   Locale? _locale;

@@ -5,7 +5,7 @@ import 'package:mail_box/app/app_router.dart';
 import 'package:mail_box/app/app_theme.dart';
 import 'package:mail_box/models/log.dart';
 import 'package:mail_box/services/hive_service.dart';
-import 'package:mail_box/services/setup/setup.dart';
+import 'package:mail_box/services/locator/locator.dart';
 import 'package:mail_box/services/shared_prefs.dart';
 import 'package:mail_box/views/home/home_provider.dart';
 import 'package:mail_box/views/logs/logs_provider.dart';
@@ -97,6 +97,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
           theme: FluentThemeData(
+            brightness: Brightness.light,
             accentColor: appTheme.color,
             visualDensity: VisualDensity.standard,
             focusTheme: FocusThemeData(
@@ -104,17 +105,23 @@ class MyApp extends StatelessWidget {
             ),
           ),
           builder: (context, child) {
-            return Directionality(
-              textDirection: appTheme.textDirection,
-              child: NavigationPaneTheme(
-                data: NavigationPaneThemeData(
-                  backgroundColor: appTheme.windowEffect !=
-                          flutter_acrylic.WindowEffect.disabled
-                      ? Colors.transparent
-                      : null,
-                ),
-                child: child!,
+            return NavigationPaneTheme(
+              data: NavigationPaneThemeData(
+                backgroundColor: appTheme.windowEffect !=
+                        flutter_acrylic.WindowEffect.disabled
+                    ? Colors.transparent
+                    : null,
+                unselectedIconColor: ButtonState.resolveWith((states) {
+                  if (states.isDisabled) {
+                    return ButtonThemeData.buttonColor(context, states);
+                  }
+                  return ButtonThemeData.uncheckedInputColor(
+                    FluentTheme.of(context),
+                    states,
+                  ).basedOnLuminance();
+                }),
               ),
+              child: child!,
             );
           },
           routeInformationParser: router.routeInformationParser,
