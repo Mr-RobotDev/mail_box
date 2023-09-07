@@ -125,8 +125,9 @@ class HomeView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 530,
+                  height: 525,
                   child: SfPdfViewer.file(
+                   pageLayoutMode: PdfPageLayoutMode.single, 
                     provider.files[provider.currentFile],
                   ),
                 ),

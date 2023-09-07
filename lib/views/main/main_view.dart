@@ -27,7 +27,13 @@ class _MainViewState extends State<MainView> with WindowListener {
       title: const Text('Home'),
       body: const SizedBox.shrink(),
       onTap: () {
-        if (router.location != '/') router.pushNamed('home');
+        final RouteMatch lastMatch =
+            router.routerDelegate.currentConfiguration.last;
+        final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+            ? lastMatch.matches
+            : router.routerDelegate.currentConfiguration;
+        final String location = matchList.uri.toString();
+        if (location != '/') router.pushNamed('home');
       },
     ),
     PaneItem(
@@ -36,7 +42,13 @@ class _MainViewState extends State<MainView> with WindowListener {
       title: const Text('Logs'),
       body: const SizedBox.shrink(),
       onTap: () {
-        if (router.location != '/logs') {
+        final RouteMatch lastMatch =
+            router.routerDelegate.currentConfiguration.last;
+        final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+            ? lastMatch.matches
+            : router.routerDelegate.currentConfiguration;
+        final String location = matchList.uri.toString();
+        if (location != '/logs') {
           router.pushNamed('logs');
         }
       },
@@ -48,7 +60,13 @@ class _MainViewState extends State<MainView> with WindowListener {
       title: const Text('Settings'),
       body: const SizedBox.shrink(),
       onTap: () {
-        if (router.location != '/settings') {
+        final RouteMatch lastMatch =
+            router.routerDelegate.currentConfiguration.last;
+        final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+            ? lastMatch.matches
+            : router.routerDelegate.currentConfiguration;
+        final String location = matchList.uri.toString();
+        if (location != '/settings') {
           router.pushNamed('settings');
         }
       },
@@ -56,7 +74,12 @@ class _MainViewState extends State<MainView> with WindowListener {
   ];
 
   int _calculateSelectedIndex() {
-    final location = router.location;
+    final RouteMatch lastMatch =
+        router.routerDelegate.currentConfiguration.last;
+    final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+        ? lastMatch.matches
+        : router.routerDelegate.currentConfiguration;
+    final String location = matchList.uri.toString();
     int indexOriginal = originalItems
         .where((element) => element.key != null)
         .toList()
@@ -90,32 +113,11 @@ class _MainViewState extends State<MainView> with WindowListener {
     return NavigationView(
       appBar: NavigationAppBar(
         automaticallyImplyLeading: false,
-        leading: () {
-          final enabled = widget.shellContext != null && router.canPop();
-          final onPressed = enabled
-              ? () {
-                  if (router.canPop()) {
-                    context.pop();
-                  }
-                }
-              : null;
-          return Builder(
-            builder: (context) => PaneItem(
-              icon: const Center(child: Icon(FluentIcons.back, size: 12.0)),
-              body: const SizedBox.shrink(),
-              enabled: enabled,
-            ).build(
-              context,
-              false,
-              onPressed,
-              displayMode: PaneDisplayMode.compact,
-            ),
-          );
-        }(),
         title: () {
-          return const Align(
+          return Align(
             alignment: AlignmentDirectional.center,
-            child: Text('Mail Box'),
+            child: Text('Mail Box', style: FluentTheme.of(context).typography.subtitle!
+            ,),
           );
         }(),
         actions: Row(
@@ -151,21 +153,11 @@ class _MainViewState extends State<MainView> with WindowListener {
         selected: _calculateSelectedIndex(),
         displayMode: appTheme.displayMode,
         items: originalItems,
-        header: SizedBox(
-          height: kOneLineTileHeight,
-          child: Row(
-            children: [
-              Image.asset(
-                'assets/icons/mail.png',
-                width: 94,
-                height: 94,
-              ),
-              const SizedBox(width: 16.0),
-              Text(
-                'Mail Box',
-                style: FluentTheme.of(context).typography.title,
-              ),
-            ],
+        header: Center(
+          child: Image.asset(
+            'assets/icons/mail.png',
+            width: 48,
+            height: 48,
           ),
         ),
         indicator: () {
